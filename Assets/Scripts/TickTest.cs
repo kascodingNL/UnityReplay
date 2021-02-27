@@ -11,9 +11,29 @@ namespace Assets.Scripts
     {
         public GameObject testObject;
 
+        [SerializeField]
+        TickCapturer tickCapturer;
+
+        private void Awake()
+        {
+            tickCapturer = gameObject.AddComponent<TickCapturer>();
+        }
+
         private void Start()
         {
             testObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
+
+            tickCapturer.RegisterGameObject(testObject);
+        }
+
+        private void FixedUpdate()
+        {
+            Debug.Log(tickCapturer.capturedTicks.Count);
+        }
+
+        private void OnApplicationQuit()
+        {
+            Debug.Log(tickCapturer.GenerateJson());
         }
     }
 }

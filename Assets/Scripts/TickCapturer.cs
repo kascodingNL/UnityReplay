@@ -10,13 +10,16 @@ namespace Assets.Scripts
 {
     class TickCapturer : MonoBehaviour
     {
-        public Dictionary<int, GameObject> subscribedGameObjects;
+        private Dictionary<int, GameObject> subscribedGameObjects = new Dictionary<int, GameObject>();
 
-        public Dictionary<ulong, StorableTick> capturedTicks;
+        public Dictionary<ulong, StorableTick> capturedTicks { get; private set; }
 
-        private void Start()
+        [SerializeField]
+        public ulong Tick { get; private set; }
+
+        private void Awake()
         {
-            subscribedGameObjects = new Dictionary<int, GameObject>();
+            //subscribedGameObjects = new Dictionary<int, GameObject>();
             capturedTicks = new Dictionary<ulong, StorableTick>();
         }
 
@@ -32,13 +35,20 @@ namespace Assets.Scripts
         {
             Dictionary<int, StorableObject> convertedObjects = new Dictionary<int, StorableObject>();
 
-            foreach(var iteration in subscribedGameObjects)
+            foreach (var iteration in subscribedGameObjects)
             {
-                if(!convertedObjects.ContainsKey(iteration.Key))
-                {
-                    convertedObjects.Add(iteration.Key, new StorableObject(iteration.Key, iteration.Value.transform.position.x, iteration.Value.transform.position.y, iteration.Value.transform.position.z));
-                }
+                convertedObjects.Add(iteration.Key, new StorableObject(iteration.Key, iteration.Value.transform.position.x, iteration.Value.transform.position.y, iteration.Value.transform.position.z));
             }
+
+            StorableTick tickData = new StorableTick(convertedObjects);
+
+            capturedTicks.Add(Tick, tickData);
+            Tick++;
+        }
+
+        public string GenerateJson()
+        {
+            return Newtonsoft.Json.JsonConvert.SerializeObject(capturedTicks);
         }
     }
 }
